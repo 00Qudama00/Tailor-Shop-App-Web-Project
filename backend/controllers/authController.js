@@ -1,7 +1,17 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const SuitType = require('../models/SuitType');
 const sendOtpEmail = require('../utils/email');
+
+const DEFAULT_SUIT_TYPES = [
+  { name: 'Simple', price: 1500, employeeSalary: 500 },
+  { name: 'Design', price: 2000, employeeSalary: 700 },
+  { name: 'Double Silai', price: 1800, employeeSalary: 600 },
+  { name: 'Triple Silai', price: 2200, employeeSalary: 800 },
+  { name: 'Waist Coat', price: 3000, employeeSalary: 1000 },
+  { name: 'Karhai Design', price: 3500, employeeSalary: 1200 },
+];
 
 function createToken(user) {
   return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -40,6 +50,9 @@ exports.register = async (req, res) => {
 
   const hashed = await bcrypt.hash(password, 10);
   const user = await User.create({ name, email, phone, password: hashed });
+
+  const suitTypes = DEFAULT_SUIT_TYPES.map((s) => ({ ...s, user: user._id, isDefault: true }));
+  await SuitType.insertMany(suitTypes);
 
   await giveNewOtp(user, 'verify');
   res.status(201).json({ message: 'Account created. We sent a 6 digit code to your email.' });
@@ -124,6 +137,21 @@ exports.me = async (req, res) => {
   if (!user) {
     return res.status(404).json({ message: 'User not found.' });
   }
+  res.json(user);
+};
+
+exports.updateShop = async (req, res) => {
+  const user = await User.findById(req.userId);
+  const { name, phone, shopName, shopPhone, shopAddress } = req.body;
+
+  if (name) user.name = name;
+  if (phone !== undefined) user.phone = phone;
+  if (shopName) user.shopName = shopName;
+  if (shopPhone !== undefined) user.shopPhone = shopPhone;
+  if (shopAddress !== undefined) user.shopAddress = shopAddress;
+  if (req.file) user.logo = '/uploads/' + req.file.filename;
+
+  await user.save();
   res.json(user);
 };
 

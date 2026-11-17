@@ -1,5 +1,6 @@
 const express = require('express');
 const auth = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const ctrl = require('../controllers/authController');
 
 const router = express.Router();
@@ -12,6 +13,7 @@ router.post('/forgot-password', ctrl.forgotPassword);
 router.post('/reset-password', ctrl.resetPassword);
 
 router.get('/me', auth, ctrl.me);
+router.put('/shop', auth, upload.single('logo'), ctrl.updateShop);
 router.put('/password', auth, ctrl.changePassword);
 
 module.exports = router;
