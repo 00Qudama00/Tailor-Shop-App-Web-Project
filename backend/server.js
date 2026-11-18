@@ -9,20 +9,15 @@ const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_URL || true }));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const placeholder = require('./routes/placeholderRoutes');
-
-// Phase 1: only authentication is implemented
 app.use('/api/auth', require('./routes/authRoutes'));
-
-// not implemented yet: empty data for reads, 501 for changes
-app.use('/api/auth', placeholder.shop);
-app.use('/api/customers', placeholder.customers);
-app.use('/api/orders', placeholder.orders);
-app.use('/api/employees', placeholder.employees);
-app.use('/api/suit-types', placeholder.suitTypes);
-app.use('/api/expenses', placeholder.expenses);
-app.use('/api/dashboard', placeholder.dashboard);
+app.use('/api/customers', require('./routes/customerRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
+app.use('/api/employees', require('./routes/employeeRoutes'));
+app.use('/api/suit-types', require('./routes/suitTypeRoutes'));
+app.use('/api/expenses', require('./routes/expenseRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 
 app.use('/api', (req, res) => {
   res.status(404).json({ message: 'Route not found.' });
@@ -36,8 +31,14 @@ if (fs.existsSync(clientBuild)) {
 }
 
 app.use((err, req, res, next) => {
+  if (err.name === 'CastError') {
+    return res.status(404).json({ message: 'Record not found.' });
+  }
   if (err.name === 'ValidationError') {
     return res.status(400).json({ message: Object.values(err.errors)[0].message });
+  }
+  if (err.name === 'MulterError') {
+    return res.status(400).json({ message: 'File is too large. Maximum size is 5 MB.' });
   }
   console.error(err);
   res.status(err.status || 500).json({ message: err.message || 'Something went wrong.' });
