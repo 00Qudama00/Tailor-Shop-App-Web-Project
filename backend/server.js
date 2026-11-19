@@ -4,11 +4,13 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const connectDB = require('./config/db');
+const { sanitizeBody } = require('./utils/sanitize');
 
 const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_URL || true }));
 app.use(express.json());
+app.use(sanitizeBody);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth', require('./routes/authRoutes'));
