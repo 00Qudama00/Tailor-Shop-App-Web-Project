@@ -4,20 +4,30 @@ This is our semester web project. It is a management app for a tailor shop where
 shop owner can keep the customers, their measurements, orders and the workers (kareegar)
 salary at one place insted of a paper register.
 
-This repo is our phase 1 submission.
+This is the full project. In phase 1 we had done the frontend and the login part, in
+phase 2 the whole backend is done so now everything is working.
 
-## What is working in phase 1
+## What it can do
 
-For phase 1 we made the complete frontend and the sign up / login part of the backend.
+- Sign up and login with a email verification code, forgot and reset password
+- Add customers and save there measurements (the 13 naap with urdu names)
+- Make orders with more than one suit, pick the kareegar, collar/cuff/pocket style,
+  fabric photo and a voice note
+- Order stages cutting, stitching, ready, delivered with urgent and late orders
+- Advance and remaining balance and extra payments
+- Send a whatsapp message to the customer (order ready, reminder etc) in urdu or english
+- A tracking page so the customer can check there order
+- Print the invoice, the kareegar work slip and the measurement card
+- Kareegar salary with a different rate per suit type
+- Suit types with price and kareegar pay
+- Monthly expenses (rozamcha)
+- Dashboard with a sales and expense chart
 
-- Sign up and login (with a verification code that is sent on email)
-- Forgot password and reset password
-- All the pages of the app are made - dashboard, customers, orders, employees (kareegar),
-  suit types, expenses and settings
+## Security (xss)
 
-The rest of the backend (saving customers, orders etc) is not done yet, it is coming in
-the next phase. So right now those pages open and you can see them but you cant save
-anything, it will just show a message that the feature is not available yet.
+To stop xss attacks we clean the user input on the backend with sanitize-html so no html
+or script tags get saved in the database, and the verification email is escaped with
+escape-html before it is sent.
 
 ## Tech used
 
